@@ -269,7 +269,7 @@ def create_app() -> web.Application:
     app = web.Application()
 
     # Static files
-    app.router.add_static("/", path="/home/claude/nickmint/web", name="static", show_index=True)
+    app.router.add_static("/", path=os.path.join(os.path.dirname(os.path.abspath(__file__)), "web"), name="static", show_index=True)
 
     # API routes
     app.router.add_route("*", "/api/{tail:.*}", api_handler)
