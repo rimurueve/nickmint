@@ -32,14 +32,14 @@ def main_keyboard(telegram_id: int) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.row(
         InlineKeyboardButton(
-            text="🎮 Open NickMint",
-            web_app=WebAppInfo(url=WEBAPP_URL)
+            text="🎮 Открыть NickMint",
+            web_app=WebAppInfo(url=f"{WEBAPP_URL}/index.html")
         )
     )
     if telegram_id == ADMIN_ID:
         builder.row(
             InlineKeyboardButton(
-                text="⚙️ Admin Panel",
+                text="⚙️ Админ-панель",
                 web_app=WebAppInfo(url=f"{WEBAPP_URL}/admin.html")
             )
         )
@@ -56,11 +56,11 @@ async def cmd_start(message: types.Message):
         return
 
     await message.answer(
-        f"👋 Welcome to <b>NickMint</b>!\n\n"
-        f"🎭 Create unique Telegram usernames\n"
-        f"💫 Trade them on the marketplace\n"
-        f"📦 Manage your inventory\n\n"
-        f"Press the button below to open the app 👇",
+        f"👋 Добро пожаловать в <b>NickMint</b>!\n\n"
+        f"🎭 Создавай уникальные Telegram юзернеймы\n"
+        f"💫 Торгуй ими на маркетплейсе\n"
+        f"📦 Управляй своим инвентарём\n\n"
+        f"Нажми кнопку ниже чтобы открыть приложение 👇",
         parse_mode="HTML",
         reply_markup=main_keyboard(message.from_user.id)
     )

@@ -269,27 +269,27 @@
 
 <!-- OVERVIEW -->
 <div class="section active fade-in" id="section-overview">
-  <div class="section-title">Stats</div>
+  <div class="section-title">Статистика</div>
   <div class="stats-grid">
     <div class="stat-card stat-purple">
       <div class="stat-val" id="total-users">—</div>
-      <div class="stat-label">Total Users</div>
+      <div class="stat-label">Всего юзеров</div>
     </div>
     <div class="stat-card stat-red">
       <div class="stat-val" id="banned-users">—</div>
-      <div class="stat-label">Banned</div>
+      <div class="stat-label">Забанены</div>
     </div>
     <div class="stat-card stat-green">
       <div class="stat-val" id="active-users">—</div>
-      <div class="stat-label">Active</div>
+      <div class="stat-label">Активны</div>
     </div>
     <div class="stat-card stat-amber">
       <div class="stat-val" id="total-stars">—</div>
-      <div class="stat-label">Total Stars</div>
+      <div class="stat-label">Всего звёзд</div>
     </div>
   </div>
   <button class="btn btn-outline" style="width:100%;padding:12px;font-size:12px;border-radius:10px;margin-top:8px" onclick="loadUsers();switchTab('users')">
-    👥 View All Users →
+    👥 Все пользователи →
   </button>
 </div>
 
@@ -297,7 +297,7 @@
 <div class="section" id="section-users">
   <div class="search-wrap">
     <span class="search-icon">🔍</span>
-    <input class="search-input" type="text" id="search-input" placeholder="Search by username or ID..." oninput="filterUsers()"/>
+    <input class="search-input" type="text" id="search-input" placeholder="Поиск по юзернейму или ID..." oninput="filterUsers()"/>
   </div>
   <div class="list-scroll" id="users-list">
     <div class="empty"><div class="spinner"></div></div>
@@ -307,15 +307,15 @@
 <!-- Stars modal -->
 <div class="modal-overlay" id="stars-modal">
   <div class="modal">
-    <div class="modal-title">⭐ Give Stars</div>
+    <div class="modal-title">⭐ Дать звёзды</div>
     <div id="stars-target-name" style="font-size:13px;color:var(--text2);margin-bottom:16px"></div>
     <div class="input-group">
-      <div class="input-label">Amount</div>
+      <div class="input-label">Количество</div>
       <input class="input" type="number" id="stars-amount" min="1" value="10" placeholder="e.g. 50"/>
     </div>
     <div class="modal-actions">
       <button class="btn btn-big-outline" onclick="closeStarsModal()">Cancel</button>
-      <button class="btn btn-big-amber" onclick="confirmGiveStars()">⭐ Give Stars</button>
+      <button class="btn btn-big-amber" onclick="confirmGiveStars()">⭐ Дать звёзды</button>
     </div>
   </div>
 </div>
@@ -332,7 +332,7 @@ let allUsers = [];
 let starsTargetId = null;
 
 if (userId && userId != ADMIN_ID) {
-  document.body.innerHTML = '<div style="text-align:center;padding:60px 20px;font-family:monospace;color:#ef4444">⛔ Access Denied</div>';
+  document.body.innerHTML = '<div style="text-align:center;padding:60px 20px;font-family:monospace;color:#ef4444">⛔ Нет доступа</div>';
 }
 
 async function loadOverview() {
@@ -367,10 +367,10 @@ function renderUsers(users) {
     <div class="user-card ${u.is_banned ? 'banned' : ''} fade-in">
       <div class="user-header">
         <div>
-          <div class="user-name">${u.username ? '@'+u.username : 'No username'}</div>
+          <div class="user-name">${u.username ? '@'+u.username : 'Нет юзернейма'}</div>
           <div class="user-id">ID: ${u.telegram_id}</div>
         </div>
-        <span class="ban-badge ${u.is_banned ? 'banned-badge' : 'active-badge'}">${u.is_banned ? '🚫 Banned' : '✅ Active'}</span>
+        <span class="ban-badge ${u.is_banned ? 'banned-badge' : 'active-badge'}">${u.is_banned ? '🚫 Забанены' : '✅ Активны'}</span>
       </div>
       <div class="user-stats">
         <span>⭐ <strong>${u.stars_balance}</strong></span>

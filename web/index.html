@@ -450,7 +450,7 @@
 <!-- HOME -->
 <div class="section active fade-in" id="section-home">
   <div class="profile-card" id="profile-card">
-    <div class="profile-name" id="profile-name">Loading...</div>
+    <div class="profile-name" id="profile-name">Загрузка...</div>
     <div class="profile-id" id="profile-id"></div>
     <div class="stats-row">
       <div class="stat">
@@ -468,7 +468,7 @@
     </div>
     <div class="slot-bar-wrap">
       <div class="slot-bar-label">
-        <span>Inventory</span>
+        <span>Инвентарь</span>
         <span><span id="bar-used">0</span> / <span id="bar-total">50</span></span>
       </div>
       <div class="slot-bar">
@@ -479,19 +479,19 @@
 
   <div style="margin-bottom: 12px;">
     <button class="btn btn-primary" id="mint-btn" onclick="mintNickname()">
-      🎲 Mint Random Nickname
+      🎲 Создать никнейм
     </button>
   </div>
   <div>
     <button class="btn btn-outline" onclick="switchTab('market')">
-      🏪 Browse Market
+      🏪 Открыть маркет
     </button>
   </div>
 </div>
 
 <!-- INVENTORY -->
 <div class="section fade-in" id="section-inventory">
-  <div class="section-title">Your Nicknames</div>
+  <div class="section-title">Твои никнеймы</div>
   <div class="list-scroll" id="inventory-list">
     <div class="empty">
       <div class="spinner"></div>
@@ -502,7 +502,7 @@
 <!-- MARKET -->
 <div class="section fade-in" id="section-market">
   <div class="section-title" style="display:flex;justify-content:space-between;align-items:center">
-    <span>Marketplace</span>
+    <span>Маркетплейс</span>
     <button class="btn btn-outline btn-sm" onclick="loadMarket()">↻ Refresh</button>
   </div>
   <div class="list-scroll" id="market-list">
@@ -514,36 +514,36 @@
 
 <!-- SLOTS -->
 <div class="section fade-in" id="section-slots">
-  <div class="section-title">Expand Inventory</div>
+  <div class="section-title">Расширить инвентарь</div>
   <div class="slots-info">
     <div class="slots-big" id="slot-big">—/—</div>
-    <div class="slots-desc">Slots used</div>
+    <div class="slots-desc">Слотов занято</div>
   </div>
   <div class="profile-card" style="margin-bottom:12px">
-    <div style="font-size:13px;margin-bottom:8px;color:var(--text2)">💡 How it works</div>
+    <div style="font-size:13px;margin-bottom:8px;color:var(--text2)">💡 Как это работает</div>
     <div style="font-size:12px;line-height:1.8;color:var(--text)">
-      • Base slots: <b>50</b><br>
-      • Max slots: <b>100</b><br>
+      • Базовые слоты: <b>50</b><br>
+      • Максимум слотов: <b>100</b><br>
       • Cost: <b>10 ⭐ → +5 slots</b><br>
-      • Buy stars via Telegram Stars
+      • Купи звёзды через Telegram Stars
     </div>
   </div>
   <button class="btn btn-amber" onclick="buySlotsStars()">
-    ⭐ Buy +5 Slots for 10 Stars
+    ⭐ Купить +5 слотов за 10 звёзд
   </button>
 </div>
 
 <!-- Sell modal -->
 <div class="modal-overlay" id="sell-modal">
   <div class="modal">
-    <div class="modal-title">💰 List on Market</div>
+    <div class="modal-title">💰 Выставить на маркет</div>
     <div class="modal-nick" id="sell-nick-name"></div>
     <div class="input-group">
-      <div class="input-label">Price (Stars)</div>
+      <div class="input-label">Цена (звёзды)</div>
       <input class="input" type="number" id="sell-price" min="1" max="9999" value="5" placeholder="e.g. 10"/>
     </div>
     <div class="modal-actions">
-      <button class="btn btn-outline" onclick="closeSellModal()">Cancel</button>
+      <button class="btn btn-outline" onclick="closeSellModal()">Отмена</button>
       <button class="btn btn-amber" onclick="confirmSell()">List for ⭐ <span id="sell-price-preview">5</span></button>
     </div>
   </div>
@@ -590,7 +590,7 @@ async function loadMe() {
     const pct = userData.total > 0 ? (userData.used / userData.total) * 100 : 0;
     document.getElementById('slot-bar-fill').style.width = pct + '%';
   } catch(e) {
-    toast('Failed to load profile', 'err');
+    toast('Ошибка загрузки профиля', 'err');
   }
 }
 
@@ -599,7 +599,7 @@ async function loadInventory() {
   try {
     const nicks = await api('/api/inventory');
     if (nicks.length === 0) {
-      el.innerHTML = `<div class="empty"><div class="empty-icon">🎭</div><div class="empty-text">No nicknames yet.<br>Go to Home and mint one!</div></div>`;
+      el.innerHTML = `<div class="empty"><div class="empty-icon">🎭</div><div class="empty-text">Никнеймов пока нет.<br>Перейди на главную и создай!</div></div>`;
       return;
     }
     el.innerHTML = nicks.map(n => `
@@ -619,7 +619,7 @@ async function loadInventory() {
       </div>
     `).join('');
   } catch(e) {
-    el.innerHTML = `<div class="empty"><div class="empty-text">Failed to load</div></div>`;
+    el.innerHTML = `<div class="empty"><div class="empty-text">Ошибка загрузки</div></div>`;
   }
 }
 
@@ -629,7 +629,7 @@ async function loadMarket() {
   try {
     const listings = await api('/api/market');
     if (listings.length === 0) {
-      el.innerHTML = `<div class="empty"><div class="empty-icon">🏪</div><div class="empty-text">No listings yet.<br>Be the first to sell!</div></div>`;
+      el.innerHTML = `<div class="empty"><div class="empty-icon">🏪</div><div class="empty-text">Пока нет лотов.<br>Будь первым кто продаст!</div></div>`;
       return;
     }
     el.innerHTML = listings.map(l => `
@@ -649,7 +649,7 @@ async function loadMarket() {
       </div>
     `).join('');
   } catch(e) {
-    el.innerHTML = `<div class="empty"><div class="empty-text">Failed to load market</div></div>`;
+    el.innerHTML = `<div class="empty"><div class="empty-text">Ошибка загрузки market</div></div>`;
   }
 }
 
@@ -671,7 +671,7 @@ async function mintNickname() {
   await loadInventory();
   btn.disabled = false;
   btn.classList.remove('generating');
-  btn.innerHTML = '🎲 Mint Random Nickname';
+  btn.innerHTML = '🎲 Создать никнейм';
   toast('✅ Nickname minted!', 'ok');
 }
 
@@ -697,7 +697,7 @@ function closeSellModal() {
 
 function confirmSell() {
   const price = parseInt(document.getElementById('sell-price').value);
-  if (!price || price < 1) { toast('Enter valid price', 'err'); return; }
+  if (!price || price < 1) { toast('Введи корректную цену', 'err'); return; }
   tg?.sendData(JSON.stringify({ action: 'sell_nickname', nickname_id: currentSellNickId, price }));
   closeSellModal();
   setTimeout(() => { loadInventory(); loadMe(); }, 1200);
