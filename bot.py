@@ -51,8 +51,13 @@ def main_keyboard(telegram_id: int) -> InlineKeyboardMarkup:
 @dp.message(CommandStart())
 async def cmd_start(message: types.Message):
     user = db.register_user(message.from_user.id, message.from_user.username)
+    if not user:
+        user = db.get_user(message.from_user.id)
+    if not user:
+        await message.answer("Ошибка регистрации. Попробуй ещё раз.")
+        return
     if user["is_banned"]:
-        await message.answer("🚫 You are banned from NickMint.")
+        await message.answer("🚫 Ты заблокирован в NickMint.")
         return
 
     await message.answer(
