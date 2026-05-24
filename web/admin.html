@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>NickMint — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #1a1a26;
+    --border: #2a2a40;
+    --accent: #ef4444;
+    --accent2: #f59e0b;
+    --accent3: #10b981;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --purple: #7c3aed;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    min-height: 100vh;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 40% at 50% 10%, rgba(239,68,68,0.06) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.95);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(239,68,68,0.3);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .logo {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: 16px;
+    color: var(--accent);
+    letter-spacing: 2px;
+  }
+  .admin-badge {
+    background: rgba(239,68,68,0.15);
+    border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .nav {
+    display: flex;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 57px;
+    z-index: 99;
+  }
+  .nav-tab {
+    flex: 1;
+    padding: 12px 8px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 11px;
+    color: var(--text2);
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .nav-tab .icon { font-size: 16px; display: block; margin-bottom: 2px; }
+
+  .section { display: none; padding: 16px; }
+  .section.active { display: block; }
+
+  /* Stats */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-val {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 28px;
+    font-weight: 900;
+    margin-bottom: 4px;
+  }
+  .stat-label { font-size: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; }
+  .stat-red .stat-val { color: var(--accent); }
+  .stat-amber .stat-val { color: var(--accent2); }
+  .stat-green .stat-val { color: var(--accent3); }
+  .stat-purple .stat-val { color: var(--purple); }
+
+  /* User table */
+  .user-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .user-card.banned { border-color: rgba(239,68,68,0.4); background: rgba(239,68,68,0.04); }
+  .user-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+  .user-name { font-size: 14px; font-weight: 700; }
+  .user-id { font-size: 10px; color: var(--text2); margin-top: 2px; }
+  .user-stats { display: flex; gap: 12px; font-size: 11px; color: var(--text2); margin-bottom: 10px; }
+  .user-stat strong { color: var(--text); }
+  .ban-badge {
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .banned-badge { background: rgba(239,68,68,0.15); color: var(--accent); }
+  .active-badge { background: rgba(16,185,129,0.1); color: var(--accent3); }
+
+  /* Actions */
+  .user-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-red { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: var(--accent); }
+  .btn-green { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); color: var(--accent3); }
+  .btn-amber { background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); color: var(--accent2); }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text2); }
+  .btn:hover { opacity: 0.8; }
+
+  /* Stars modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 200;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    padding: 24px 20px 40px;
+    width: 100%;
+    max-width: 480px;
+  }
+  .modal-title { font-family: 'Orbitron', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 16px; }
+  .input-group { margin-bottom: 14px; }
+  .input-label { font-size: 11px; color: var(--text2); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
+  .input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 16px;
+    outline: none;
+  }
+  .modal-actions { display: flex; gap: 10px; }
+  .modal-actions .btn { flex: 1; padding: 12px; font-size: 12px; border-radius: 10px; }
+  .btn-big-outline { background: transparent; border: 1px solid var(--border); color: var(--text2); }
+  .btn-big-amber { background: linear-gradient(135deg, #f59e0b, #d97706); border: none; color: #000; }
+
+  /* Search */
+  .search-wrap { margin-bottom: 14px; position: relative; }
+  .search-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px 10px 36px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    outline: none;
+  }
+  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 14px; color: var(--text2); }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-size: 13px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 999;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.ok { border-color: #10b981; color: #10b981; }
+  .toast.err { border-color: #ef4444; color: #ef4444; }
+
+  .spinner {
+    width: 20px; height: 20px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: inline-block;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .empty { text-align: center; padding: 48px 24px; color: var(--text2); font-size: 13px; }
+  .section-title { font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; }
+
+  .list-scroll { max-height: calc(100vh - 200px); overflow-y: auto; padding-bottom: 80px; }
+  .fade-in { animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">NICKMINT</div>
+  <div class="admin-badge">⚙ Admin</div>
+</div>
+
+<nav class="nav">
+  <div class="nav-tab active" onclick="switchTab('overview')">
+    <span class="icon">📊</span>Overview
+  </div>
+  <div class="nav-tab" onclick="switchTab('users')">
+    <span class="icon">👥</span>Users
+  </div>
+</nav>
+
+<!-- OVERVIEW -->
+<div class="section active fade-in" id="section-overview">
+  <div class="section-title">Stats</div>
+  <div class="stats-grid">
+    <div class="stat-card stat-purple">
+      <div class="stat-val" id="total-users">—</div>
+      <div class="stat-label">Total Users</div>
+    </div>
+    <div class="stat-card stat-red">
+      <div class="stat-val" id="banned-users">—</div>
+      <div class="stat-label">Banned</div>
+    </div>
+    <div class="stat-card stat-green">
+      <div class="stat-val" id="active-users">—</div>
+      <div class="stat-label">Active</div>
+    </div>
+    <div class="stat-card stat-amber">
+      <div class="stat-val" id="total-stars">—</div>
+      <div class="stat-label">Total Stars</div>
+    </div>
+  </div>
+  <button class="btn btn-outline" style="width:100%;padding:12px;font-size:12px;border-radius:10px;margin-top:8px" onclick="loadUsers();switchTab('users')">
+    👥 View All Users →
+  </button>
+</div>
+
+<!-- USERS -->
+<div class="section" id="section-users">
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input class="search-input" type="text" id="search-input" placeholder="Search by username or ID..." oninput="filterUsers()"/>
+  </div>
+  <div class="list-scroll" id="users-list">
+    <div class="empty"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<!-- Stars modal -->
+<div class="modal-overlay" id="stars-modal">
+  <div class="modal">
+    <div class="modal-title">⭐ Give Stars</div>
+    <div id="stars-target-name" style="font-size:13px;color:var(--text2);margin-bottom:16px"></div>
+    <div class="input-group">
+      <div class="input-label">Amount</div>
+      <input class="input" type="number" id="stars-amount" min="1" value="10" placeholder="e.g. 50"/>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-big-outline" onclick="closeStarsModal()">Cancel</button>
+      <button class="btn btn-big-amber" onclick="confirmGiveStars()">⭐ Give Stars</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const tg = window.Telegram?.WebApp;
+if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor('#0a0a0f'); tg.setBackgroundColor('#0a0a0f'); }
+
+const userId = tg?.initDataUnsafe?.user?.id || 0;
+const ADMIN_ID = 8330904314;
+let allUsers = [];
+let starsTargetId = null;
+
+if (userId && userId != ADMIN_ID) {
+  document.body.innerHTML = '<div style="text-align:center;padding:60px 20px;font-family:monospace;color:#ef4444">⛔ Access Denied</div>';
+}
+
+async function loadOverview() {
+  try {
+    const users = await fetch(`/api/admin/users?user_id=${userId}`).then(r => r.json());
+    allUsers = users;
+    document.getElementById('total-users').textContent = users.length;
+    document.getElementById('banned-users').textContent = users.filter(u => u.is_banned).length;
+    document.getElementById('active-users').textContent = users.filter(u => !u.is_banned).length;
+    document.getElementById('total-stars').textContent = users.reduce((s, u) => s + u.stars_balance, 0);
+  } catch(e) {}
+}
+
+async function loadUsers() {
+  const el = document.getElementById('users-list');
+  try {
+    const users = await fetch(`/api/admin/users?user_id=${userId}`).then(r => r.json());
+    allUsers = users;
+    renderUsers(users);
+  } catch(e) {
+    el.innerHTML = '<div class="empty">Failed to load</div>';
+  }
+}
+
+function renderUsers(users) {
+  const el = document.getElementById('users-list');
+  if (users.length === 0) {
+    el.innerHTML = '<div class="empty">No users found</div>';
+    return;
+  }
+  el.innerHTML = users.map(u => `
+    <div class="user-card ${u.is_banned ? 'banned' : ''} fade-in">
+      <div class="user-header">
+        <div>
+          <div class="user-name">${u.username ? '@'+u.username : 'No username'}</div>
+          <div class="user-id">ID: ${u.telegram_id}</div>
+        </div>
+        <span class="ban-badge ${u.is_banned ? 'banned-badge' : 'active-badge'}">${u.is_banned ? '🚫 Banned' : '✅ Active'}</span>
+      </div>
+      <div class="user-stats">
+        <span>⭐ <strong>${u.stars_balance}</strong></span>
+        <span>📦 <strong>+${u.extra_slots}</strong> extra</span>
+        <span>🗓 <strong>${formatDate(u.created_at)}</strong></span>
+      </div>
+      <div class="user-actions">
+        <button class="btn btn-amber" onclick="openStarsModal(${u.telegram_id},'${u.username||'User'}')">⭐ Stars</button>
+        ${u.is_banned
+          ? `<button class="btn btn-green" onclick="adminAction('admin_unban',${u.telegram_id})">✅ Unban</button>`
+          : `<button class="btn btn-red" onclick="adminAction('admin_ban',${u.telegram_id})">🚫 Ban</button>`
+        }
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterUsers() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const filtered = allUsers.filter(u =>
+    (u.username || '').toLowerCase().includes(q) ||
+    String(u.telegram_id).includes(q)
+  );
+  renderUsers(filtered);
+}
+
+function openStarsModal(targetId, name) {
+  starsTargetId = targetId;
+  document.getElementById('stars-target-name').textContent = `Give stars to ${name} (${targetId})`;
+  document.getElementById('stars-modal').classList.add('open');
+}
+function closeStarsModal() {
+  document.getElementById('stars-modal').classList.remove('open');
+  starsTargetId = null;
+}
+function confirmGiveStars() {
+  const amount = parseInt(document.getElementById('stars-amount').value);
+  if (!amount || amount < 1) { toast('Enter valid amount', 'err'); return; }
+  tg?.sendData(JSON.stringify({ action: 'admin_add_stars', target_id: starsTargetId, amount }));
+  closeStarsModal();
+  setTimeout(loadUsers, 1500);
+  toast(`✅ Gave ${amount} ⭐ to ${starsTargetId}`, 'ok');
+}
+
+function adminAction(action, targetId) {
+  const label = action === 'admin_ban' ? 'ban' : 'unban';
+  if (!confirm(`Are you sure you want to ${label} user ${targetId}?`)) return;
+  tg?.sendData(JSON.stringify({ action, target_id: targetId }));
+  setTimeout(loadUsers, 1200);
+  toast(`✅ ${label.charAt(0).toUpperCase()+label.slice(1)}ned ${targetId}`, 'ok');
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('section-' + tab).classList.add('active');
+  const tabs = ['overview','users'];
+  document.querySelectorAll('.nav-tab')[tabs.indexOf(tab)]?.classList.add('active');
+}
+
+function formatDate(str) {
+  if (!str) return '—';
+  const d = new Date(str);
+  return d.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+}
+
+document.getElementById('stars-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeStarsModal();
+});
+
+let toastTimer;
+function toast(msg, type='ok') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show ' + type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.className = 'toast'; }, 3000);
+}
+
+// Init
+loadOverview();
+</script>
+</body>
+</html>

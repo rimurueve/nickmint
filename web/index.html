@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>NickMint</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #1a1a26;
+    --border: #2a2a40;
+    --accent: #7c3aed;
+    --accent2: #06b6d4;
+    --accent3: #f59e0b;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --green: #10b981;
+    --red: #ef4444;
+    --glow: rgba(124,58,237,0.4);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 60% 40% at 20% 20%, rgba(124,58,237,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 30% at 80% 70%, rgba(6,182,212,0.06) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Header */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.95);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: 18px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 2px;
+  }
+  .stars-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent3);
+  }
+
+  /* Nav tabs */
+  .nav {
+    display: flex;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    position: sticky;
+    top: 57px;
+    z-index: 99;
+    scrollbar-width: none;
+  }
+  .nav::-webkit-scrollbar { display: none; }
+  .nav-tab {
+    flex: 1;
+    min-width: 80px;
+    padding: 12px 8px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 11px;
+    color: var(--text2);
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .nav-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+  .nav-tab .icon { font-size: 16px; display: block; margin-bottom: 2px; }
+
+  /* Sections */
+  .section { display: none; padding: 16px; position: relative; z-index: 1; }
+  .section.active { display: block; }
+
+  /* Profile card */
+  .profile-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .profile-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+  .profile-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .profile-id { font-size: 11px; color: var(--text2); margin-bottom: 16px; }
+  .stats-row { display: flex; gap: 12px; }
+  .stat {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+  }
+  .stat-val {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 2px;
+  }
+  .stat-label { font-size: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; }
+
+  /* Slot bar */
+  .slot-bar-wrap { margin: 16px 0; }
+  .slot-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text2);
+    margin-bottom: 6px;
+  }
+  .slot-bar {
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .slot-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 3px;
+    transition: width 0.5s ease;
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    text-decoration: none;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #5b21b6);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(124,58,237,0.3);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(124,58,237,0.5); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-cyan {
+    background: linear-gradient(135deg, var(--accent2), #0891b2);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(6,182,212,0.3);
+  }
+  .btn-amber {
+    background: linear-gradient(135deg, var(--accent3), #d97706);
+    color: #000;
+    box-shadow: 0 4px 20px rgba(245,158,11,0.3);
+  }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text2);
+  }
+  .btn-danger {
+    background: rgba(239,68,68,0.15);
+    border: 1px solid rgba(239,68,68,0.3);
+    color: var(--red);
+  }
+  .btn-sm {
+    padding: 7px 12px;
+    font-size: 11px;
+    border-radius: 8px;
+    width: auto;
+  }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+
+  /* Nick cards */
+  .nick-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    transition: border-color 0.2s;
+  }
+  .nick-card:hover { border-color: var(--accent); }
+  .nick-card.on-market { border-color: rgba(245,158,11,0.4); }
+  .nick-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent2);
+  }
+  .nick-meta { font-size: 10px; color: var(--text2); margin-top: 2px; }
+  .nick-badge {
+    font-size: 9px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .badge-market { background: rgba(245,158,11,0.15); color: var(--accent3); border: 1px solid rgba(245,158,11,0.3); }
+  .badge-owned { background: rgba(16,185,129,0.1); color: var(--green); border: 1px solid rgba(16,185,129,0.2); }
+  .nick-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+  /* Market */
+  .market-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .market-nick { font-family: 'Orbitron', sans-serif; font-size: 15px; font-weight: 700; color: var(--text); }
+  .market-seller { font-size: 11px; color: var(--text2); margin-top: 2px; }
+  .market-price {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent3);
+    white-space: nowrap;
+  }
+
+  /* Sell modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 200;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    padding: 24px 20px 40px;
+    width: 100%;
+    max-width: 480px;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .modal-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+  .modal-nick { font-size: 20px; color: var(--accent2); font-weight: 700; margin-bottom: 16px; text-align: center; }
+  .input-group { margin-bottom: 16px; }
+  .input-label { font-size: 11px; color: var(--text2); margin-bottom: 6px; letter-spacing: 1px; text-transform: uppercase; }
+  .input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .input:focus { border-color: var(--accent); }
+  .modal-actions { display: flex; gap: 10px; }
+  .modal-actions .btn { flex: 1; }
+
+  /* Slots modal */
+  .slots-info {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .slots-big {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 36px;
+    font-weight: 900;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .slots-desc { font-size: 12px; color: var(--text2); }
+
+  /* Empty state */
+  .empty {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--text2);
+  }
+  .empty-icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-text { font-size: 14px; }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-size: 13px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 999;
+    max-width: 90vw;
+    text-align: center;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .toast.ok { border-color: var(--green); color: var(--green); }
+  .toast.err { border-color: var(--red); color: var(--red); }
+
+  /* Scrollable list */
+  .list-scroll { max-height: calc(100vh - 200px); overflow-y: auto; padding-bottom: 80px; }
+
+  /* Generate animation */
+  @keyframes pulse-glow {
+    0%,100% { box-shadow: 0 4px 20px rgba(124,58,237,0.3); }
+    50% { box-shadow: 0 4px 40px rgba(124,58,237,0.7); }
+  }
+  .btn-primary.generating { animation: pulse-glow 1s infinite; }
+
+  /* Spinner */
+  .spinner {
+    width: 20px; height: 20px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: inline-block;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .section-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+
+  /* Fade in */
+  .fade-in { animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="logo">NICKMINT</div>
+  <div class="stars-badge" id="stars-badge">
+    ⭐ <span id="stars-val">—</span>
+  </div>
+</div>
+
+<!-- Nav -->
+<nav class="nav">
+  <div class="nav-tab active" onclick="switchTab('home')">
+    <span class="icon">🏠</span>Home
+  </div>
+  <div class="nav-tab" onclick="switchTab('inventory')">
+    <span class="icon">🎒</span>Inventory
+  </div>
+  <div class="nav-tab" onclick="switchTab('market')">
+    <span class="icon">🏪</span>Market
+  </div>
+  <div class="nav-tab" onclick="switchTab('slots')">
+    <span class="icon">📦</span>Slots
+  </div>
+</nav>
+
+<!-- HOME -->
+<div class="section active fade-in" id="section-home">
+  <div class="profile-card" id="profile-card">
+    <div class="profile-name" id="profile-name">Loading...</div>
+    <div class="profile-id" id="profile-id"></div>
+    <div class="stats-row">
+      <div class="stat">
+        <div class="stat-val" id="stat-stars">—</div>
+        <div class="stat-label">⭐ Stars</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val" id="stat-nicks">—</div>
+        <div class="stat-label">🎭 Nicks</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val" id="stat-slots">—</div>
+        <div class="stat-label">📦 Slots</div>
+      </div>
+    </div>
+    <div class="slot-bar-wrap">
+      <div class="slot-bar-label">
+        <span>Inventory</span>
+        <span><span id="bar-used">0</span> / <span id="bar-total">50</span></span>
+      </div>
+      <div class="slot-bar">
+        <div class="slot-bar-fill" id="slot-bar-fill" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-bottom: 12px;">
+    <button class="btn btn-primary" id="mint-btn" onclick="mintNickname()">
+      🎲 Mint Random Nickname
+    </button>
+  </div>
+  <div>
+    <button class="btn btn-outline" onclick="switchTab('market')">
+      🏪 Browse Market
+    </button>
+  </div>
+</div>
+
+<!-- INVENTORY -->
+<div class="section fade-in" id="section-inventory">
+  <div class="section-title">Your Nicknames</div>
+  <div class="list-scroll" id="inventory-list">
+    <div class="empty">
+      <div class="spinner"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MARKET -->
+<div class="section fade-in" id="section-market">
+  <div class="section-title" style="display:flex;justify-content:space-between;align-items:center">
+    <span>Marketplace</span>
+    <button class="btn btn-outline btn-sm" onclick="loadMarket()">↻ Refresh</button>
+  </div>
+  <div class="list-scroll" id="market-list">
+    <div class="empty">
+      <div class="spinner"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SLOTS -->
+<div class="section fade-in" id="section-slots">
+  <div class="section-title">Expand Inventory</div>
+  <div class="slots-info">
+    <div class="slots-big" id="slot-big">—/—</div>
+    <div class="slots-desc">Slots used</div>
+  </div>
+  <div class="profile-card" style="margin-bottom:12px">
+    <div style="font-size:13px;margin-bottom:8px;color:var(--text2)">💡 How it works</div>
+    <div style="font-size:12px;line-height:1.8;color:var(--text)">
+      • Base slots: <b>50</b><br>
+      • Max slots: <b>100</b><br>
+      • Cost: <b>10 ⭐ → +5 slots</b><br>
+      • Buy stars via Telegram Stars
+    </div>
+  </div>
+  <button class="btn btn-amber" onclick="buySlotsStars()">
+    ⭐ Buy +5 Slots for 10 Stars
+  </button>
+</div>
+
+<!-- Sell modal -->
+<div class="modal-overlay" id="sell-modal">
+  <div class="modal">
+    <div class="modal-title">💰 List on Market</div>
+    <div class="modal-nick" id="sell-nick-name"></div>
+    <div class="input-group">
+      <div class="input-label">Price (Stars)</div>
+      <input class="input" type="number" id="sell-price" min="1" max="9999" value="5" placeholder="e.g. 10"/>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeSellModal()">Cancel</button>
+      <button class="btn btn-amber" onclick="confirmSell()">List for ⭐ <span id="sell-price-preview">5</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const tg = window.Telegram?.WebApp;
+if (tg) {
+  tg.ready();
+  tg.expand();
+  tg.setHeaderColor('#0a0a0f');
+  tg.setBackgroundColor('#0a0a0f');
+}
+
+const userId = tg?.initDataUnsafe?.user?.id || 0;
+const BASE = '';  // same origin
+let userData = null;
+let currentSellNickId = null;
+
+// ─── API ────────────────────────────────────────────────────────────────────────
+
+async function api(path) {
+  const res = await fetch(`${BASE}${path}?user_id=${userId}`);
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+// ─── State ──────────────────────────────────────────────────────────────────────
+
+async function loadMe() {
+  try {
+    userData = await api('/api/me');
+    document.getElementById('profile-name').textContent = userData.username ? `@${userData.username}` : `User #${userData.telegram_id}`;
+    document.getElementById('profile-id').textContent = `ID: ${userData.telegram_id}`;
+    document.getElementById('stat-stars').textContent = userData.stars_balance;
+    document.getElementById('stat-nicks').textContent = userData.used;
+    document.getElementById('stat-slots').textContent = `${userData.used}/${userData.total}`;
+    document.getElementById('stars-val').textContent = userData.stars_balance;
+    document.getElementById('bar-used').textContent = userData.used;
+    document.getElementById('bar-total').textContent = userData.total;
+    document.getElementById('slot-big').textContent = `${userData.used}/${userData.total}`;
+    const pct = userData.total > 0 ? (userData.used / userData.total) * 100 : 0;
+    document.getElementById('slot-bar-fill').style.width = pct + '%';
+  } catch(e) {
+    toast('Failed to load profile', 'err');
+  }
+}
+
+async function loadInventory() {
+  const el = document.getElementById('inventory-list');
+  try {
+    const nicks = await api('/api/inventory');
+    if (nicks.length === 0) {
+      el.innerHTML = `<div class="empty"><div class="empty-icon">🎭</div><div class="empty-text">No nicknames yet.<br>Go to Home and mint one!</div></div>`;
+      return;
+    }
+    el.innerHTML = nicks.map(n => `
+      <div class="nick-card ${n.on_market ? 'on-market' : ''} fade-in">
+        <div style="flex:1;min-width:0">
+          <div class="nick-name">${n.nickname}</div>
+          <div class="nick-meta">${formatDate(n.created_at)}</div>
+          ${n.on_market ? `<span class="nick-badge badge-market">Market · ${n.price_stars}⭐</span>` : `<span class="nick-badge badge-owned">Owned</span>`}
+        </div>
+        <div class="nick-actions">
+          ${n.on_market
+            ? `<button class="btn btn-outline btn-sm" onclick="delistNick(${n.id})">✕ Delist</button>`
+            : `<button class="btn btn-amber btn-sm" onclick="openSellModal(${n.id},'${n.nickname}')">💰 Sell</button>
+               <button class="btn btn-danger btn-sm" onclick="deleteNick(${n.id})">🗑</button>`
+          }
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    el.innerHTML = `<div class="empty"><div class="empty-text">Failed to load</div></div>`;
+  }
+}
+
+async function loadMarket() {
+  const el = document.getElementById('market-list');
+  el.innerHTML = `<div class="empty"><div class="spinner"></div></div>`;
+  try {
+    const listings = await api('/api/market');
+    if (listings.length === 0) {
+      el.innerHTML = `<div class="empty"><div class="empty-icon">🏪</div><div class="empty-text">No listings yet.<br>Be the first to sell!</div></div>`;
+      return;
+    }
+    el.innerHTML = listings.map(l => `
+      <div class="market-card fade-in">
+        <div style="flex:1;min-width:0">
+          <div class="market-nick">${l.nickname}</div>
+          <div class="market-seller">by ${l.seller_username ? '@'+l.seller_username : 'User #'+l.seller_id}</div>
+          <div style="font-size:10px;color:var(--text2);margin-top:2px">${formatDate(l.listed_at)}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+          <div class="market-price">⭐ ${l.price_stars}</div>
+          ${l.seller_id != userId
+            ? `<button class="btn btn-cyan btn-sm" onclick="buyNick(${l.market_id}, ${l.price_stars})">Buy</button>`
+            : `<span style="font-size:10px;color:var(--text2)">Your listing</span>`
+          }
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    el.innerHTML = `<div class="empty"><div class="empty-text">Failed to load market</div></div>`;
+  }
+}
+
+// ─── Actions ────────────────────────────────────────────────────────────────────
+
+async function mintNickname() {
+  if (!userData) return;
+  const btn = document.getElementById('mint-btn');
+  if (btn.disabled) return;
+  btn.disabled = true;
+  btn.classList.add('generating');
+  btn.innerHTML = '<span class="spinner"></span> Minting...';
+
+  tg?.sendData(JSON.stringify({ action: 'create_nickname' }));
+
+  // Optimistic: wait 1.5s then reload
+  await new Promise(r => setTimeout(r, 1500));
+  await loadMe();
+  await loadInventory();
+  btn.disabled = false;
+  btn.classList.remove('generating');
+  btn.innerHTML = '🎲 Mint Random Nickname';
+  toast('✅ Nickname minted!', 'ok');
+}
+
+function buySlotsStars() {
+  tg?.sendData(JSON.stringify({ action: 'buy_slots_stars' }));
+  toast('💫 Invoice sent to chat!', 'ok');
+}
+
+function openSellModal(nickId, nickName) {
+  currentSellNickId = nickId;
+  document.getElementById('sell-nick-name').textContent = nickName;
+  document.getElementById('sell-modal').classList.add('open');
+  const priceInput = document.getElementById('sell-price');
+  priceInput.oninput = () => {
+    document.getElementById('sell-price-preview').textContent = priceInput.value || '—';
+  };
+}
+
+function closeSellModal() {
+  document.getElementById('sell-modal').classList.remove('open');
+  currentSellNickId = null;
+}
+
+function confirmSell() {
+  const price = parseInt(document.getElementById('sell-price').value);
+  if (!price || price < 1) { toast('Enter valid price', 'err'); return; }
+  tg?.sendData(JSON.stringify({ action: 'sell_nickname', nickname_id: currentSellNickId, price }));
+  closeSellModal();
+  setTimeout(() => { loadInventory(); loadMe(); }, 1200);
+  toast('📋 Listing submitted!', 'ok');
+}
+
+function delistNick(nickId) {
+  tg?.sendData(JSON.stringify({ action: 'delist_nickname', nickname_id: nickId }));
+  setTimeout(() => { loadInventory(); loadMarket(); loadMe(); }, 1200);
+  toast('✕ Delisted from market', 'ok');
+}
+
+function deleteNick(nickId) {
+  if (!confirm('Delete this nickname?')) return;
+  tg?.sendData(JSON.stringify({ action: 'delete_nickname', nickname_id: nickId }));
+  setTimeout(() => { loadInventory(); loadMe(); }, 1200);
+  toast('🗑 Deleted', 'ok');
+}
+
+function buyNick(marketId, price) {
+  if (!confirm(`Buy for ${price} ⭐?`)) return;
+  tg?.sendData(JSON.stringify({ action: 'buy_nickname', market_id: marketId }));
+  setTimeout(() => { loadInventory(); loadMarket(); loadMe(); }, 1200);
+  toast('✅ Purchase sent!', 'ok');
+}
+
+// ─── UI helpers ─────────────────────────────────────────────────────────────────
+
+function switchTab(tab) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('section-' + tab).classList.add('active');
+  const tabs = ['home','inventory','market','slots'];
+  document.querySelectorAll('.nav-tab')[tabs.indexOf(tab)]?.classList.add('active');
+  if (tab === 'inventory') loadInventory();
+  if (tab === 'market') loadMarket();
+  if (tab === 'slots') loadMe();
+}
+
+function formatDate(str) {
+  if (!str) return '';
+  const d = new Date(str);
+  return d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+}
+
+let toastTimer;
+function toast(msg, type='ok') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show ' + type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.className = 'toast'; }, 3000);
+}
+
+// Click outside modal to close
+document.getElementById('sell-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeSellModal();
+});
+
+// Init
+loadMe();
+</script>
+</body>
+</html>
