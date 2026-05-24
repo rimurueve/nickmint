@@ -72,6 +72,7 @@ def register_user(telegram_id: int, username: Optional[str]) -> dict:
             "INSERT INTO users (telegram_id, username) VALUES (?, ?)",
             (telegram_id, username)
         )
+        conn.commit()
         return get_user(telegram_id)
 
 
