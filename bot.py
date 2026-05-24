@@ -1,4 +1,5 @@
 import os
+import asyncio
 import json
 import logging
 from aiohttp import web
@@ -268,7 +269,7 @@ def create_app() -> web.Application:
     app = web.Application()
 
     # Static files
-    app.router.add_static("/", path=os.path.join(os.path.dirname(__file__), 'web'), name="static", show_index=True)
+    app.router.add_static("/", path="/home/claude/nickmint/web", name="static", show_index=True)
 
     # API routes
     app.router.add_route("*", "/api/{tail:.*}", api_handler)
@@ -287,4 +288,3 @@ def create_app() -> web.Application:
 if __name__ == "__main__":
     app = create_app()
     web.run_app(app, host="0.0.0.0", port=8080)
-
